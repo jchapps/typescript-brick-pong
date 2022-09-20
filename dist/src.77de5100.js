@@ -631,12 +631,12 @@ var gameOver = false;
 var score = 0;
 
 function setGameOver(view) {
-  view.drawInfo("Game Over! Better luck next time :(");
+  view.drawInfo("You lost!");
   gameOver = false;
 }
 
 function setGameWin(view) {
-  view.drawInfo("Winner winner chicken dinner");
+  view.drawInfo("Winner!");
   gameOver = false;
 }
 

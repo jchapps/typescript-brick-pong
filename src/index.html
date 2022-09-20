@@ -10,7 +10,7 @@
       <img id="background" src="./images/background.jpg"></img>
       <div id="display">
         <div id="score"></div>
-        <button id="start">Start</button>
+        <button id="start">Play</button>
         <div id="info">Press play!</div>
       </div>
     </div>
@@ -49,11 +49,19 @@
       display: flex;
       justify-content: space-between;
       width: var(--width);
+
     }
 
     #score,
     #info {
       width: 200px;
+      color: lightblue;
+    }
+
+    #start {
+      color: white;
+      background-color: lightblue;
+
     }
   </style>
 </html>

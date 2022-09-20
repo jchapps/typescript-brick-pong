@@ -27,12 +27,12 @@ let gameOver = false;
 let score = 0;
 
 function setGameOver(view: CanvasView) {
-  view.drawInfo("Game Over! Better luck next time :(");
+  view.drawInfo("You lost!");
   gameOver = false;
 }
 
 function setGameWin(view: CanvasView) {
-  view.drawInfo("Winner winner chicken dinner");
+  view.drawInfo("Winner!");
   gameOver = false;
 }
 
