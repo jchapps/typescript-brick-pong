@@ -2,6 +2,7 @@ import { CanvasView } from "./view/CanvasView";
 import { Ball } from "./sprites/Ball";
 import { Brick } from "./sprites/Brick";
 import { Paddle } from "./sprites/Paddle";
+import { Collision } from "./Collision";
 
 //images
 
@@ -26,12 +27,12 @@ let gameOver = false;
 let score = 0;
 
 function setGameOver(view: CanvasView) {
-  view.drawInfo("Game Over");
+  view.drawInfo("Game Over! Better luck next time :(");
   gameOver = false;
 }
 
 function setGameWin(view: CanvasView) {
-  view.drawInfo("You won");
+  view.drawInfo("Winner winner chicken dinner");
   gameOver = false;
 }
 
@@ -39,7 +40,8 @@ function gameLoop(
   view: CanvasView,
   bricks: Brick[],
   paddle: Paddle,
-  ball: Ball
+  ball: Ball,
+  collision: Collision
 ) {
   view.clear();
   view.drawBricks(bricks);
@@ -58,29 +60,42 @@ function gameLoop(
     paddle.movePaddle();
   }
 
-  requestAnimationFrame(() => gameLoop(view, bricks, paddle, ball));
+  collision.checkBallCollision(ball, paddle, view);
+  const collidingBrick = collision.isCollidingBricks(ball, bricks);
+
+  if (collidingBrick) {
+    score += 1;
+    view.drawScore(score);
+  }
+
+  // Game over if ball leaves field
+
+  if (ball.pos.y > view.canvas.height) gameOver = true;
+  //if game wins, sets gameover and display
+  if (bricks.length === 0) return setGameWin(view);
+  //return if gameover and don't run the  request animation frame
+  if (gameOver) return setGameOver(view);
+
+  requestAnimationFrame(() => gameLoop(view, bricks, paddle, ball, collision));
 }
 
 function startGame(view: CanvasView) {
-  // Display reset
+  // Reset displays
   score = 0;
   view.drawInfo("");
   view.drawScore(0);
-
-  //create all bricks
+  // Create a collision instance
+  const collision = new Collision();
+  // Create all bricks
   const bricks = createBricks();
-
-  //create ball
+  // Create a Ball
   const ball = new Ball(
     BALL_SPEED,
     BALL_SIZE,
-    {
-      x: BALL_STARTX,
-      y: BALL_STARTY,
-    },
+    { x: BALL_STARTX, y: BALL_STARTY },
     BALL_IMAGE
   );
-  //create paddle
+  // Create a Paddle
   const paddle = new Paddle(
     PADDLE_SPEED,
     PADDLE_WIDTH,
@@ -92,7 +107,7 @@ function startGame(view: CanvasView) {
     PADDLE_IMAGE
   );
 
-  gameLoop(view, bricks, paddle, ball);
+  gameLoop(view, bricks, paddle, ball, collision);
 }
 
 const view = new CanvasView("#playField");

@@ -346,6 +346,70 @@ function () {
 }();
 
 exports.Paddle = Paddle;
+},{}],"Collision.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Collision = void 0;
+
+var Collision =
+/** @class */
+function () {
+  function Collision() {}
+
+  Collision.prototype.isCollidingBrick = function (ball, brick) {
+    if (ball.pos.x < brick.pos.x + brick.width && ball.pos.x + ball.width > brick.pos.x && ball.pos.y < brick.pos.y + brick.height && ball.pos.y + ball.height > brick.pos.y) {
+      return true;
+    }
+
+    return false;
+  }; // Check ball collision with bricks
+
+
+  Collision.prototype.isCollidingBricks = function (ball, bricks) {
+    var _this = this;
+
+    var colliding = false;
+    bricks.forEach(function (brick, i) {
+      if (_this.isCollidingBrick(ball, brick)) {
+        ball.changeYDirection();
+
+        if (brick.energy === 1) {
+          bricks.splice(i, 1);
+        } else {
+          brick.energy -= 1;
+        }
+
+        colliding = true;
+      }
+    });
+    return colliding;
+  };
+
+  Collision.prototype.checkBallCollision = function (ball, paddle, view) {
+    // 1. Check ball collision with paddle
+    if (ball.pos.x + ball.width > paddle.pos.x && ball.pos.x < paddle.pos.x + paddle.width && ball.pos.y + ball.height === paddle.pos.y) {
+      ball.changeYDirection();
+    } // 2. Check ball collision with walls
+    // Ball movement X constraints
+
+
+    if (ball.pos.x > view.canvas.width - ball.width || ball.pos.x < 0) {
+      ball.changeXDirection();
+    } // Ball movement Y constraints
+
+
+    if (ball.pos.y < 0) {
+      ball.changeYDirection();
+    }
+  };
+
+  return Collision;
+}();
+
+exports.Collision = Collision;
 },{}],"images/paddle.png":[function(require,module,exports) {
 module.exports = "/paddle.f48d929a.png";
 },{}],"images/ball.png":[function(require,module,exports) {
@@ -382,7 +446,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // Grab the canvas element for calculating the brick width
 // depending on canvas width
-var canvas = document.querySelector('#playField'); // Constants
+var canvas = document.querySelector("#playField"); // Constants
 
 var STAGE_PADDING = 10;
 exports.STAGE_PADDING = STAGE_PADDING;
@@ -425,12 +489,11 @@ var BRICK_ENERGY = {
   2: 1,
   3: 2,
   4: 2,
-  5: 3 // Purple brick
-
+  5: 3
 }; // prettier-ignore
 
 exports.BRICK_ENERGY = BRICK_ENERGY;
-var LEVEL = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 5, 5, 0, 0, 5, 5, 0, 0];
+var LEVEL = [0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 0, 4, 4, 5, 5, 4, 4, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 2, 2, 4, 2, 4, 2, 4, 2, 0, 0, 1, 2, 2, 1, 1, 2, 2, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0];
 exports.LEVEL = LEVEL;
 },{"./images/brick-red.png":"images/brick-red.png","./images/brick-blue.png":"images/brick-blue.png","./images/brick-green.png":"images/brick-green.png","./images/brick-yellow.png":"images/brick-yellow.png","./images/brick-purple.png":"images/brick-purple.png"}],"sprites/Brick.ts":[function(require,module,exports) {
 "use strict";
@@ -549,6 +612,8 @@ var _Ball = require("./sprites/Ball");
 
 var _Paddle = require("./sprites/Paddle");
 
+var _Collision = require("./Collision");
+
 var _paddle = _interopRequireDefault(require("./images/paddle.png"));
 
 var _ball = _interopRequireDefault(require("./images/ball.png"));
@@ -566,16 +631,16 @@ var gameOver = false;
 var score = 0;
 
 function setGameOver(view) {
-  view.drawInfo("Game Over");
+  view.drawInfo("Game Over! Better luck next time :(");
   gameOver = false;
 }
 
 function setGameWin(view) {
-  view.drawInfo("You won");
+  view.drawInfo("Winner winner chicken dinner");
   gameOver = false;
 }
 
-function gameLoop(view, bricks, paddle, ball) {
+function gameLoop(view, bricks, paddle, ball, collision) {
   view.clear();
   view.drawBricks(bricks);
   view.drawSprite(paddle);
@@ -587,34 +652,50 @@ function gameLoop(view, bricks, paddle, ball) {
     paddle.movePaddle();
   }
 
+  collision.checkBallCollision(ball, paddle, view);
+  var collidingBrick = collision.isCollidingBricks(ball, bricks);
+
+  if (collidingBrick) {
+    score += 1;
+    view.drawScore(score);
+  } // Game over if ball leaves field
+
+
+  if (ball.pos.y > view.canvas.height) gameOver = true; //if game wins, sets gameover and display
+
+  if (bricks.length === 0) return setGameWin(view); //return if gameover and don't run the  request animation frame
+
+  if (gameOver) return setGameOver(view);
   requestAnimationFrame(function () {
-    return gameLoop(view, bricks, paddle, ball);
+    return gameLoop(view, bricks, paddle, ball, collision);
   });
 }
 
 function startGame(view) {
-  // Display reset
+  // Reset displays
   score = 0;
   view.drawInfo("");
-  view.drawScore(0); //create all bricks
+  view.drawScore(0); // Create a collision instance
 
-  var bricks = (0, _helpers.createBricks)(); //create ball
+  var collision = new _Collision.Collision(); // Create all bricks
+
+  var bricks = (0, _helpers.createBricks)(); // Create a Ball
 
   var ball = new _Ball.Ball(_setup.BALL_SPEED, _setup.BALL_SIZE, {
     x: _setup.BALL_STARTX,
     y: _setup.BALL_STARTY
-  }, _ball.default); //create paddle
+  }, _ball.default); // Create a Paddle
 
   var paddle = new _Paddle.Paddle(_setup.PADDLE_SPEED, _setup.PADDLE_WIDTH, _setup.PADDLE_HEIGHT, {
     x: _setup.PADDLE_STARTX,
     y: view.canvas.height - _setup.PADDLE_HEIGHT - 5
   }, _paddle.default);
-  gameLoop(view, bricks, paddle, ball);
+  gameLoop(view, bricks, paddle, ball, collision);
 }
 
 var view = new _CanvasView.CanvasView("#playField");
 view.initStartButton(startGame);
-},{"./view/CanvasView":"view/CanvasView.ts","./sprites/Ball":"sprites/Ball.ts","./sprites/Paddle":"sprites/Paddle.ts","./images/paddle.png":"images/paddle.png","./images/ball.png":"images/ball.png","./setup":"setup.ts","./helpers":"helpers.ts"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./view/CanvasView":"view/CanvasView.ts","./sprites/Ball":"sprites/Ball.ts","./sprites/Paddle":"sprites/Paddle.ts","./Collision":"Collision.ts","./images/paddle.png":"images/paddle.png","./images/ball.png":"images/ball.png","./setup":"setup.ts","./helpers":"helpers.ts"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
