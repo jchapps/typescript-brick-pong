@@ -3,8 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <title>Typescript App</title>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
   </head>
   <body>
+    <div class="title">
+    <img src="./images/alien.jpg"></img>
+    <h1>Super brick breaker</h1>
+    </div>
     <div id="main" class="main">
       <canvas id="playField" width="1000" height="600"></canvas>
       <img id="background" src="./images/background.jpg"></img>
@@ -55,13 +60,24 @@
     #score,
     #info {
       width: 200px;
-      color: lightblue;
+      color: #17BEBB;
     }
 
     #start {
       color: white;
-      background-color: lightblue;
+      background-color: #17BEBB;
 
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .title img {
+      height: 130px;
+      width: 130px;
     }
   </style>
 </html>
