@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <title>Typescript App</title>
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bangers">
+    <style>
+      body {
+        font-family: 'Bangers';
+        font-size: 24px;
+        color: #E7C8DD;
+         text-shadow: 1px 1px #000000;
+
+      }
+    </style>
   </head>
   <body>
     <div class="title">
@@ -15,8 +25,8 @@
       <img id="background" src="./images/background.jpg"></img>
       <div id="display">
         <div id="score"></div>
-        <button id="start">Play</button>
-        <div id="info">Press play!</div>
+        <button id="start">PLAY</button>
+        <div id="info">Press Play!</div>
       </div>
     </div>
     <script src="./index.ts"></script>
@@ -34,7 +44,7 @@
       width: var(--width);
       height: var(--height);
       font-size: 32px;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif, Helvetica, sans-serif;
     }
 
     canvas {
@@ -60,12 +70,14 @@
     #score,
     #info {
       width: 200px;
-      color: #17BEBB;
+      color: #E7C8DD;
     }
 
     #start {
-      color: white;
-      background-color: #17BEBB;
+      color: rgb(0, 0, 0);
+      background-color: #E7C8DD;
+      border-radius: 2px;
+      width: 250px;
 
     }
 
@@ -73,11 +85,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
     }
 
     .title img {
-      height: 130px;
-      width: 130px;
+      height: 120px;
+      width: 120px;
     }
   </style>
 </html>
